@@ -18,6 +18,7 @@
 
 #include "path_printer.h"
 #include "config.h"
+#include "util.h"
 
 #include <memory>
 
@@ -36,18 +37,23 @@ std::unique_ptr<path_printer_t> path_printer_t::from_config(
 {
     std::unique_ptr<path_printer_t> printer;
     if (config.filenames_only()) {
+        LOG(info) << "Print file names only by default";
         printer = detail::make_unique<path_name_printer_t>(config);
     }
     else {
+        LOG(info) << "Print absolute file paths by default";
         printer = detail::make_unique<path_printer_t>(config);
     }
 
     if (config.relative_to()) {
+        LOG(info) << "Print relative paths for files inside"
+                  << config.relative_to().value();
         printer = detail::make_unique<path_relative_printer_t>(
             config, std::move(printer));
     }
 
     if (config.relative_system_headers()) {
+        LOG(info) << "Print relative paths for system headers";
         printer = detail::make_unique<system_header_relative_printer_t>(
             config, std::move(printer));
         printer = detail::make_unique<system_header_brackets_printer_t>(
